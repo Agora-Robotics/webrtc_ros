@@ -128,24 +128,24 @@ bool WebrtcClient::initPeerConnection()
 
     auto iceClient = nh_->create_client<webrtc_ros_msgs::srv::GetIceServers>("get_ice_servers");
 
-    if (iceClient->wait_for_service(10s)){
-      auto request = std::make_shared<webrtc_ros_msgs::srv::GetIceServers::Request>();
-      auto result = iceClient->async_send_request(request);
-
-      // Wait for the result.
-      if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
-      {      
-        for(int i=0; i<result.get()->servers.size(); i++){
-          webrtc::PeerConnectionInterface::IceServer server;
-          server.uri = result.get()->servers[i].uri;
-          if(!result.get()->servers[i].username.empty() && !result.get()->servers[i].password.empty()){
-            server.username = result.get()->servers[i].username;
-            server.password = result.get()->servers[i].password;
-          }
-          config.servers.push_back(server);
-        }
-      }
-    }
+    // if (iceClient->wait_for_service(10s)){
+    //   auto request = std::make_shared<webrtc_ros_msgs::srv::GetIceServers::Request>();
+    //   auto result = iceClient->async_send_request(request);
+    //   // Wait for the result.
+    //   if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+    //   {      
+    //     for(int i=0; i<result.get()->servers.size(); i++){
+    //       webrtc::PeerConnectionInterface::IceServer server;
+    //       server.uri = result.get()->servers[i].uri;
+    //       if(!result.get()->servers[i].username.empty() && !result.get()->servers[i].password.empty()){
+    //         server.username = result.get()->servers[i].username;
+    //         server.password = result.get()->servers[i].password;
+    //       }
+    //       config.servers.push_back(server);
+    //     }
+    //   }
+    // }
+    
     config.sdp_semantics = webrtc::SdpSemantics::kPlanB_DEPRECATED;
 
     WebrtcClientWeakPtr weak_this(keep_alive_this_);
