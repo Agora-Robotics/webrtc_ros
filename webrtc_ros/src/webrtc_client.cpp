@@ -128,12 +128,15 @@ bool WebrtcClient::initPeerConnection()
 
     auto iceClient = nh_->create_client<webrtc_ros_msgs::srv::GetIceServers>("get_ice_servers");
 
-    if (iceClient->wait_for_service(10s)){
+    // elefterie1: no blocking 10 s wait for a service nobody provides (it held up every new video client),
+    // and wait on the reply without spinning nh_, which the MultiThreadedExecutor in main() already spins
+    // (spin_until_future_complete aborted with "Node has already been added to an executor").
+    if (iceClient->service_is_ready()){
       auto request = std::make_shared<webrtc_ros_msgs::srv::GetIceServers::Request>();
       auto result = iceClient->async_send_request(request);
 
       // Wait for the result.
-      if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+      if (result.wait_for(2s) == std::future_status::ready)
       {      
         for(int i=0; i<result.get()->servers.size(); i++){
           webrtc::PeerConnectionInterface::IceServer server;
